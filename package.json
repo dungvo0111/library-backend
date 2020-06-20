@@ -9,9 +9,8 @@
   "author": "Bowden Kelly",
   "license": "MIT",
   "scripts": {
-    "ng": "ng",
-    "build": "ng build --prod",
-    "start": "ng build --prod && node dist/server/app.js",
+    "build": "build --prod",
+    "start": "build --prod && node dist/server.js",
     "serve": "node dist/server.js",
     "watch-node": "nodemon dist/server.js",
     "watch": "concurrently -k -p \"[{name}]\" -n \"Sass,TypeScript,Node\" -c \"yellow.bold,cyan.bold,green.bold\" \"npm run watch-ts\" \"npm run watch-node\"",
