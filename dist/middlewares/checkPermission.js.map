@@ -1,0 +1,1 @@
+{"version":3,"file":"checkPermission.js","sourceRoot":"","sources":["../../src/middlewares/checkPermission.ts"],"names":[],"mappings":";;AAEA,kDAAoD;AAEpD,SAAwB,eAAe,CACrC,GAAY,EACZ,GAAa,EACb,IAAkB;IAElB,MAAM,OAAO,GAAG,GAAG,CAAC,IAAI,CAAC,QAAQ,CAAC,OAAO,CAAA;IACzC,IAAI,OAAO,EAAE;QACX,IAAI,EAAE,CAAA;KACP;SAAM;QACL,MAAM,IAAI,yBAAc,CAAC,6BAA6B,CAAC,CAAA;KACxD;AACH,CAAC;AAXD,kCAWC"}
