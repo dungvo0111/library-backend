@@ -52,7 +52,7 @@ export const createBook = async (
     await BookService.create(book)
     res.json(book)
   } catch (error) {
-    if (error.name === 'ValidationError') {
+    if (error.name === 'ValidationError' || error.name === 'MongoError') {
       next(new BadRequestError('Invalid Request', error))
     } else {
       next(new InternalServerError('Internal Server Error', error))
@@ -124,15 +124,13 @@ export const deleteBook = async (
   } catch (error) {
     if (error.statusCode === 400) {
       next(new BadRequestError(error.message, error))
-    } else if (error.statusCode === 500) {
-      next(new InternalServerError(error.message, error))
     } else {
       next(new NotFoundError(error.message, error))
     }
   }
 }
 
-//PATCH /:ISBN/borrowBook
+//PUT /:ISBN/borrowBook
 export const borrowBook = async (
   req: Request,
   res: Response,
@@ -150,7 +148,7 @@ export const borrowBook = async (
   }
 }
 
-//PATCH /:ISBN/returnBook
+//PUT /:ISBN/returnBook
 export const returnBook = async (
   req: Request,
   res: Response,

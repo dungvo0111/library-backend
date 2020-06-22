@@ -2,16 +2,14 @@ import mongoose, { Document } from 'mongoose'
 
 type Status = 'available' | 'borrowed'
 
-type ISBN = '^(97(8|9))?d{9}(d|X)$'
-
 export type BookDocument = Document & {
-  ISBN: ISBN;
+  ISBN: string;
   title: string;
   description: string;
   publisher: string;
-  author: [string];
+  author: string[];
   status: Status;
-  genres: [string];
+  genres: string[];
   borrowerId?: string;
   publishedDate: Date;
   borrowedDate?: Date;
@@ -35,6 +33,7 @@ const bookSchema = new mongoose.Schema({
   },
   publisher: {
     type: String,
+    required: true,
   },
   author: {
     type: [String],

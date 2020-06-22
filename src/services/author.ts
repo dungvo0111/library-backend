@@ -38,9 +38,6 @@ function deleteAuthor(authorId: string): Promise<AuthorDocument | null> {
       }
       return author
     })
-    .catch((err) => {
-      throw new InternalServerError()
-    })
 }
 
 export default { add, updateAuthor, deleteAuthor }

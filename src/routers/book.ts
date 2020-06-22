@@ -22,7 +22,7 @@ router.get('/:ISBN', findByISBN)
 router.put('/:ISBN', checkAuth, checkPermission, updateBook)
 router.delete('/:ISBN', checkAuth, checkPermission, deleteBook)
 router.post('/', checkAuth, checkPermission, createBook)
-router.patch('/:ISBN/borrowBook', checkAuth, borrowBook)
-router.patch('/:ISBN/returnBook', checkAuth, returnBook)
+router.put('/:ISBN/borrowBook', checkAuth, borrowBook)
+router.put('/:ISBN/returnBook', checkAuth, returnBook)
 
 export default router

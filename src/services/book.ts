@@ -133,9 +133,6 @@ function deleteBook(ISBN: string): Promise<BookDocument | null> {
         }
         return book
       })
-      .catch((err) => {
-        throw new InternalServerError()
-      })
   } else {
     throw new BadRequestError('Invalid ISBN')
   }

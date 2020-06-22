@@ -4,7 +4,7 @@ export type AuthorDocument = Document & {
   name: string;
   dateOfBirth: Date;
   nationality: string;
-  books: [string];
+  books?: string[];
 }
 
 const authorSchema = new mongoose.Schema({
@@ -21,7 +21,7 @@ const authorSchema = new mongoose.Schema({
     required: true,
   },
   books: {
-    type: { String },
+    type: [String],
     required: true,
   },
 })
