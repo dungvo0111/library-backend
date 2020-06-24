@@ -23,9 +23,9 @@ type authData = {
   userId: string;
 }
 type updateProfilePayload = {
-  email: string;
-  firstName: string;
-  lastName: string;
+  email?: string;
+  firstName?: string;
+  lastName?: string;
   authData: authData;
 }
 
@@ -141,22 +141,23 @@ function googleSignIn(payload: googleSignInPayload): Promise<string> {
           lastName: payload.lastName,
           password: bcrypt.hashSync('abcd1234', 10), //Create a default password
         })
-        newUser.save()
-        const token = jwt.sign(
-          {
-            email: newUser.email,
-            userId: newUser._id,
-            isAdmin: newUser.isAdmin,
-            firstName: newUser.firstName,
-            lastName: newUser.lastName,
-            password: newUser.password, //put into token for frontend warning about changing password
-          },
-          JWT_SECRET,
-          {
-            expiresIn: '1h',
-          }
-        )
-        return token
+        return newUser.save().then((newUser) => {
+          const token = jwt.sign(
+            {
+              email: newUser.email,
+              userId: newUser._id,
+              isAdmin: newUser.isAdmin,
+              firstName: newUser.firstName,
+              lastName: newUser.lastName,
+              password: newUser.password, //put into token for frontend warning about changing password
+            },
+            JWT_SECRET,
+            {
+              expiresIn: '1h',
+            }
+          )
+          return token
+        })
       } else {
         const token = jwt.sign(
           {
@@ -181,7 +182,7 @@ function updateProfile(payload: updateProfilePayload): Promise<string> {
     .exec()
     .then((user) => {
       if (!user) {
-        throw new Error('Email does not match')
+        throw new InternalServerError()
       }
       if (payload.firstName) {
         user.firstName = payload.firstName
@@ -193,24 +194,32 @@ function updateProfile(payload: updateProfilePayload): Promise<string> {
         if (!isEmail(payload.email)) {
           throw new Error('Must be a valid email address')
         }
+        if (payload.email !== user.email) {
+          //check if the provided email in the payload is taken or not
+          const result = User.findOne({ email: payload.email })
+          if (result) {
+            throw new Error('This email is already taken')
+          }
+        }
         user.email = payload.email
       }
-      user.save()
-      //create new token since the old one has outdated data
-      const token = jwt.sign(
-        {
-          email: user.email,
-          userId: user._id,
-          isAdmin: user.isAdmin,
-          firstName: user.firstName,
-          lastName: user.lastName,
-        },
-        JWT_SECRET,
-        {
-          expiresIn: '1h',
-        }
-      )
-      return token
+      return user.save().then((user) => {
+        //create new token since the old one has outdated data
+        const token = jwt.sign(
+          {
+            email: user.email,
+            userId: user._id,
+            isAdmin: user.isAdmin,
+            firstName: user.firstName,
+            lastName: user.lastName,
+          },
+          JWT_SECRET,
+          {
+            expiresIn: '1h',
+          }
+        )
+        return token
+      })
     })
 }
 
@@ -229,23 +238,23 @@ function changePassword(payload: changePasswordPayload): Promise<string> {
             )
           }
           return bcrypt.hash(payload.newPassword, 10).then((hash) => {
-
             user.password = hash
-            user.save()
-            const token = jwt.sign(
-              {
-                email: user.email,
-                userId: user._id,
-                isAdmin: user.isAdmin,
-                firstName: user.firstName,
-                lastName: user.lastName,
-              },
-              JWT_SECRET,
-              {
-                expiresIn: '1h',
-              }
-            )
-            return token
+            return user.save().then((user) => {
+              const token = jwt.sign(
+                {
+                  email: user.email,
+                  userId: user._id,
+                  isAdmin: user.isAdmin,
+                  firstName: user.firstName,
+                  lastName: user.lastName,
+                },
+                JWT_SECRET,
+                {
+                  expiresIn: '1h',
+                }
+              )
+              return token
+            })
           })
         } else {
           throw new Error('Old password does not match')
@@ -309,7 +318,6 @@ function resetPassword(payload: resetPasswordPayload): Promise<UserDocument> {
         throw new InternalServerError()
       }
       return bcrypt.hash(payload.newPassword, 10).then((hash) => {
-        console.log(hash)
         user.password = hash
         return user.save()
       })

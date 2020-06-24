@@ -7,12 +7,12 @@ import * as dbHelper from '../db-helper'
 const nonExistingAuthorId = '5e57b77b5744fa0b461c7906'
 
 async function addAuthor(token: string) {
-    const author = new Author({
+    const author = {
         name: 'Jordan',
         dateOfBirth: '1963 February 17',
         nationality: 'U.S',
         books: ['The last dance']
-    })
+    }
     return await request(app)
         .post('/api/v1/author').set('Authorization', `Bearer ${token}`).send(author)
 }
@@ -43,7 +43,6 @@ describe('author controller', () => {
 
     it('should add a new author', async () => {
         const res = await addAuthor(token)
-        console.log(res.body)
         expect(res.status).toBe(200)
         expect(res.body).toHaveProperty('_id')
         expect(res.body.name).toBe('Jordan')

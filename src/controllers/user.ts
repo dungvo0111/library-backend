@@ -65,11 +65,7 @@ export const googleSignIn = async (
       token: token,
     })
   } catch (error) {
-    if (error.statusCode === 401) {
-      next(new UnauthorizedError(error.message, error))
-    } else {
-      next(new BadRequestError(error.message, error))
-    }
+    next(new InternalServerError())
   }
 }
 
@@ -102,14 +98,14 @@ export const changePassword = async (
     const token = await UserService.changePassword(payload)
     res.json({
       message: 'Password updated successfully',
-      token: token
+      token: token,
     })
   } catch (error) {
     next(new BadRequestError(error.message, error))
   }
 }
 
-// PUT /user/resetPassword
+// POST /user/resetPassword
 export const resetPasswordRequest = async (
   req: Request,
   res: Response,
@@ -120,6 +116,7 @@ export const resetPasswordRequest = async (
     const resetToken = await UserService.resetPasswordRequest(payload)
     res.json({
       message: 'Email sent successful',
+      resetToken,
     })
   } catch (error) {
     if (error.statusCode === 500) {

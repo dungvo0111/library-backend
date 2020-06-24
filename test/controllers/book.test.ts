@@ -24,7 +24,7 @@ async function createBook(token: string, override?: Partial<BookDocument>) {
         .post('/api/v1/books').set('Authorization', `Bearer ${token}`).send(book)
 }
 
-describe('author controller', () => {
+describe('user controller', () => {
     let token: string;
 
     beforeAll((done) => {
@@ -51,7 +51,6 @@ describe('author controller', () => {
 
     it('should create a new book', async () => {
         const res = await createBook(token)
-        console.log(res.body)
         expect(res.status).toBe(200)
         expect(res.body).toHaveProperty('_id')
         expect(res.body.title).toBe('The last dance')
