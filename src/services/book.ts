@@ -24,10 +24,54 @@ type ReturnBookPayload = {
   returnedDate: Date;
 }
 
+type PaginationPayload = {
+  page: number;
+  limit: number;
+}
+
+type PaginationResults = {
+  results: BookDocument[];
+  next?: {
+    page: number;
+    limit: number;
+  };
+  previous?: {
+    page: number;
+    limit: number;
+  };
+}
+
 const ISBNRegex = /^(97(8|9))?\d{9}(\d|X)$/
 
-function findAll(): Promise<BookDocument[]> {
-  return Book.find().sort({ title: 1, publishedDate: -1 }).exec()
+async function findAll({
+  page,
+  limit,
+}: PaginationPayload): Promise<PaginationResults> {
+  const startIndex = (page - 1) * limit
+  const endIndex = page * limit
+
+  const results: PaginationResults = { results: [] }
+
+  if (endIndex < (await Book.countDocuments().exec())) {
+    results.next = {
+      page: page + 1,
+      limit: limit,
+    }
+  }
+
+  if (startIndex > 0) {
+    results.previous = {
+      page: page - 1,
+      limit: limit,
+    }
+  }
+  results.results = await Book.find()
+    .limit(limit)
+    .skip(startIndex)
+    .sort({ title: 1, publishedDate: -1 })
+    .exec()
+  return results
+  // return Book.find().sort({ title: 1, publishedDate: -1 }).exec()
 }
 
 function create(book: BookDocument): Promise<BookDocument> {

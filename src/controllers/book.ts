@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 
-import Book from '../models/Book'
+import Book, { BookDocument } from '../models/Book'
 import BookService from '../services/book'
 import {
   NotFoundError,
@@ -8,16 +8,23 @@ import {
   InternalServerError,
 } from '../helpers/apiError'
 
-// GET /books
+// GET /books with pagination
 export const findAll = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
+  // try {
+  //   res.json(await BookService.findAll(req.body.paginatedResults))
+  // } catch (error) {
+  //   next(new NotFoundError('Books not found', error))
+  // }
+  const page = parseInt(req.query.page)
+  const limit = parseInt(req.query.limit)
   try {
-    res.json(await BookService.findAll())
+    res.json(await BookService.findAll({ page, limit }))
   } catch (error) {
-    next(new NotFoundError('Books not found', error))
+    throw new InternalServerError()
   }
 }
 

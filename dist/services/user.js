@@ -246,8 +246,7 @@ function resetPasswordRequest(payload) {
             to: payload.email,
             from: 'dung.vo@integrify.io',
             subject: 'Link to reset password',
-            // html: `Link to reset your password: <strong><a href=${link}>link</a></strong>`,
-            html: emailContent_1.emailContent(user.firstName, link)
+            html: emailContent_1.emailContent(user.firstName, link),
         };
         return sgMail
             .send(msg)

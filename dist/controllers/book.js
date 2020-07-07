@@ -15,13 +15,20 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const Book_1 = __importDefault(require("../models/Book"));
 const book_1 = __importDefault(require("../services/book"));
 const apiError_1 = require("../helpers/apiError");
-// GET /books
+// GET /books with pagination
 exports.findAll = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    // try {
+    //   res.json(await BookService.findAll(req.body.paginatedResults))
+    // } catch (error) {
+    //   next(new NotFoundError('Books not found', error))
+    // }
+    const page = parseInt(req.query.page);
+    const limit = parseInt(req.query.limit);
     try {
-        res.json(yield book_1.default.findAll());
+        res.json(yield book_1.default.findAll({ page, limit }));
     }
     catch (error) {
-        next(new apiError_1.NotFoundError('Books not found', error));
+        throw new apiError_1.InternalServerError();
     }
 });
 //POST /books

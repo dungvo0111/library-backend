@@ -19,7 +19,7 @@ exports.signUp = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
     try {
         const user = yield user_1.default.signUp(req.body);
         res.json({
-            message: 'Sign up successful',
+            message: 'Sign up successful!',
             user,
         });
     }
@@ -37,7 +37,7 @@ exports.signIn = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
     try {
         const token = yield user_1.default.signIn(req.body);
         res.json({
-            message: 'Sign in successful',
+            message: 'Sign in successful!',
             token: token,
         });
     }
@@ -55,7 +55,7 @@ exports.googleSignIn = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
     try {
         const token = yield user_1.default.googleSignIn(req.body.payload);
         res.json({
-            message: 'Sign in successful',
+            message: 'Sign in successful!',
             token: token,
         });
     }
@@ -69,7 +69,7 @@ exports.updateProfile = (req, res, next) => __awaiter(void 0, void 0, void 0, fu
         const payload = req.body;
         const token = yield user_1.default.updateProfile(payload);
         res.json({
-            message: 'Profile updated successfully',
+            message: 'Profile updated successfully!',
             token: token,
         });
     }
@@ -83,7 +83,7 @@ exports.changePassword = (req, res, next) => __awaiter(void 0, void 0, void 0, f
         const payload = req.body;
         const token = yield user_1.default.changePassword(payload);
         res.json({
-            message: 'Password updated successfully',
+            message: 'Password updated successfully!',
             token: token,
         });
     }
@@ -97,7 +97,7 @@ exports.resetPasswordRequest = (req, res, next) => __awaiter(void 0, void 0, voi
         const payload = req.body;
         const resetToken = yield user_1.default.resetPasswordRequest(payload);
         res.json({
-            message: 'Email sent successful',
+            message: 'Email sent successful, check your email!',
             resetToken,
         });
     }
@@ -116,7 +116,7 @@ exports.resetPassword = (req, res, next) => __awaiter(void 0, void 0, void 0, fu
         const payload = req.body;
         const user = yield user_1.default.resetPassword(payload);
         res.json({
-            message: 'Reset password successful',
+            message: 'Password reset successfully!',
             user,
         });
     }
