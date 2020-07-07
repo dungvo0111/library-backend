@@ -60,12 +60,7 @@ exports.googleSignIn = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
         });
     }
     catch (error) {
-        if (error.statusCode === 401) {
-            next(new apiError_1.UnauthorizedError(error.message, error));
-        }
-        else {
-            next(new apiError_1.BadRequestError(error.message, error));
-        }
+        next(new apiError_1.InternalServerError());
     }
 });
 // PUT /user/updateProfile
@@ -89,20 +84,21 @@ exports.changePassword = (req, res, next) => __awaiter(void 0, void 0, void 0, f
         const token = yield user_1.default.changePassword(payload);
         res.json({
             message: 'Password updated successfully',
-            token: token
+            token: token,
         });
     }
     catch (error) {
         next(new apiError_1.BadRequestError(error.message, error));
     }
 });
-// PUT /user/resetPassword
+// POST /user/resetPassword
 exports.resetPasswordRequest = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const payload = req.body;
         const resetToken = yield user_1.default.resetPasswordRequest(payload);
         res.json({
             message: 'Email sent successful',
+            resetToken,
         });
     }
     catch (error) {

@@ -180,7 +180,7 @@ function googleSignIn(payload: googleSignInPayload): Promise<string> {
 function updateProfile(payload: updateProfilePayload): Promise<string> {
   return User.findOne({ email: payload.authData.email })
     .exec()
-    .then((user) => {
+    .then(async (user) => {
       if (!user) {
         throw new InternalServerError()
       }
@@ -192,16 +192,24 @@ function updateProfile(payload: updateProfilePayload): Promise<string> {
       }
       if (payload.email) {
         if (!isEmail(payload.email)) {
-          throw new Error('Must be a valid email address')
+          throw new BadRequestError('Must be a valid email address')
         }
         if (payload.email !== user.email) {
           //check if the provided email in the payload is taken or not
-          const result = User.findOne({ email: payload.email })
+          const result = await User.findOne({ email: payload.email })
+            .exec()
+            .then((user) => {
+              if (user) {
+                return true
+              } else {
+                return false
+              }
+            })
           if (result) {
-            throw new Error('This email is already taken')
+            throw new BadRequestError('This email is already taken')
           }
+          user.email = payload.email
         }
-        user.email = payload.email
       }
       return user.save().then((user) => {
         //create new token since the old one has outdated data
@@ -220,6 +228,9 @@ function updateProfile(payload: updateProfilePayload): Promise<string> {
         )
         return token
       })
+    })
+    .catch((err) => {
+      throw new Error(err.message)
     })
 }
 

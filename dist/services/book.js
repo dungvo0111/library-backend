@@ -102,9 +102,6 @@ function deleteBook(ISBN) {
                 throw new Error(`Book with ISBN ${ISBN} not found`);
             }
             return book;
-        })
-            .catch((err) => {
-            throw new apiError_1.InternalServerError();
         });
     }
     else {

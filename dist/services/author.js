@@ -4,7 +4,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const Author_1 = __importDefault(require("../models/Author"));
-const apiError_1 = require("../helpers/apiError");
 function add(author) {
     return author.save();
 }
@@ -36,9 +35,6 @@ function deleteAuthor(authorId) {
             throw new Error('Author not found');
         }
         return author;
-    })
-        .catch((err) => {
-        throw new apiError_1.InternalServerError();
     });
 }
 exports.default = { add, updateAuthor, deleteAuthor };

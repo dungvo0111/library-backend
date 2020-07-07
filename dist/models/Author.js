@@ -18,7 +18,7 @@ const authorSchema = new mongoose_1.default.Schema({
         required: true,
     },
     books: {
-        type: { String },
+        type: [String],
         required: true,
     },
 });

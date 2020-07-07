@@ -21,6 +21,7 @@ const bookSchema = new mongoose_1.default.Schema({
     },
     publisher: {
         type: String,
+        required: true,
     },
     author: {
         type: [String],

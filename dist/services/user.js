@@ -1,4 +1,13 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -98,18 +107,19 @@ function googleSignIn(payload) {
                 lastName: payload.lastName,
                 password: bcryptjs_1.default.hashSync('abcd1234', 10),
             });
-            newUser.save();
-            const token = jsonwebtoken_1.default.sign({
-                email: newUser.email,
-                userId: newUser._id,
-                isAdmin: newUser.isAdmin,
-                firstName: newUser.firstName,
-                lastName: newUser.lastName,
-                password: newUser.password,
-            }, secrets_1.JWT_SECRET, {
-                expiresIn: '1h',
+            return newUser.save().then((newUser) => {
+                const token = jsonwebtoken_1.default.sign({
+                    email: newUser.email,
+                    userId: newUser._id,
+                    isAdmin: newUser.isAdmin,
+                    firstName: newUser.firstName,
+                    lastName: newUser.lastName,
+                    password: newUser.password,
+                }, secrets_1.JWT_SECRET, {
+                    expiresIn: '1h',
+                });
+                return token;
             });
-            return token;
         }
         else {
             const token = jsonwebtoken_1.default.sign({
@@ -128,9 +138,9 @@ function googleSignIn(payload) {
 function updateProfile(payload) {
     return User_1.default.findOne({ email: payload.authData.email })
         .exec()
-        .then((user) => {
+        .then((user) => __awaiter(this, void 0, void 0, function* () {
         if (!user) {
-            throw new Error('Email does not match');
+            throw new apiError_1.InternalServerError();
         }
         if (payload.firstName) {
             user.firstName = payload.firstName;
@@ -140,22 +150,42 @@ function updateProfile(payload) {
         }
         if (payload.email) {
             if (!isEmail(payload.email)) {
-                throw new Error('Must be a valid email address');
+                throw new apiError_1.BadRequestError('Must be a valid email address');
             }
-            user.email = payload.email;
+            if (payload.email !== user.email) {
+                //check if the provided email in the payload is taken or not
+                const result = yield User_1.default.findOne({ email: payload.email })
+                    .exec()
+                    .then((user) => {
+                    if (user) {
+                        return true;
+                    }
+                    else {
+                        return false;
+                    }
+                });
+                if (result) {
+                    throw new apiError_1.BadRequestError('This email is already taken');
+                }
+                user.email = payload.email;
+            }
         }
-        user.save();
-        //create new token since the old one has outdated data
-        const token = jsonwebtoken_1.default.sign({
-            email: user.email,
-            userId: user._id,
-            isAdmin: user.isAdmin,
-            firstName: user.firstName,
-            lastName: user.lastName,
-        }, secrets_1.JWT_SECRET, {
-            expiresIn: '1h',
+        return user.save().then((user) => {
+            //create new token since the old one has outdated data
+            const token = jsonwebtoken_1.default.sign({
+                email: user.email,
+                userId: user._id,
+                isAdmin: user.isAdmin,
+                firstName: user.firstName,
+                lastName: user.lastName,
+            }, secrets_1.JWT_SECRET, {
+                expiresIn: '1h',
+            });
+            return token;
         });
-        return token;
+    }))
+        .catch((err) => {
+        throw new Error(err.message);
     });
 }
 function changePassword(payload) {
@@ -163,7 +193,7 @@ function changePassword(payload) {
         .exec()
         .then((user) => {
         if (!user) {
-            throw new Error('Email does not match');
+            throw new apiError_1.InternalServerError();
         }
         return bcryptjs_1.default.compare(payload.oldPassword, user.password).then((res) => {
             if (res) {
@@ -172,17 +202,18 @@ function changePassword(payload) {
                 }
                 return bcryptjs_1.default.hash(payload.newPassword, 10).then((hash) => {
                     user.password = hash;
-                    user.save();
-                    const token = jsonwebtoken_1.default.sign({
-                        email: user.email,
-                        userId: user._id,
-                        isAdmin: user.isAdmin,
-                        firstName: user.firstName,
-                        lastName: user.lastName,
-                    }, secrets_1.JWT_SECRET, {
-                        expiresIn: '1h',
+                    return user.save().then((user) => {
+                        const token = jsonwebtoken_1.default.sign({
+                            email: user.email,
+                            userId: user._id,
+                            isAdmin: user.isAdmin,
+                            firstName: user.firstName,
+                            lastName: user.lastName,
+                        }, secrets_1.JWT_SECRET, {
+                            expiresIn: '1h',
+                        });
+                        return token;
                     });
-                    return token;
                 });
             }
             else {
@@ -237,7 +268,6 @@ function resetPassword(payload) {
             throw new apiError_1.InternalServerError();
         }
         return bcryptjs_1.default.hash(payload.newPassword, 10).then((hash) => {
-            console.log(hash);
             user.password = hash;
             return user.save();
         });

@@ -14,7 +14,7 @@ router.get('/:ISBN', book_1.findByISBN);
 router.put('/:ISBN', checkAuth_1.default, checkPermission_1.default, book_1.updateBook);
 router.delete('/:ISBN', checkAuth_1.default, checkPermission_1.default, book_1.deleteBook);
 router.post('/', checkAuth_1.default, checkPermission_1.default, book_1.createBook);
-router.patch('/:ISBN/borrowBook', checkAuth_1.default, book_1.borrowBook);
-router.patch('/:ISBN/returnBook', checkAuth_1.default, book_1.returnBook);
+router.put('/:ISBN/borrowBook', checkAuth_1.default, book_1.borrowBook);
+router.put('/:ISBN/returnBook', checkAuth_1.default, book_1.returnBook);
 exports.default = router;
 //# sourceMappingURL=book.js.map

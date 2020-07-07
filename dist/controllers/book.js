@@ -42,7 +42,7 @@ exports.createBook = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
         res.json(book);
     }
     catch (error) {
-        if (error.name === 'ValidationError') {
+        if (error.name === 'ValidationError' || error.name === 'MongoError') {
             next(new apiError_1.BadRequestError('Invalid Request', error));
         }
         else {
@@ -102,15 +102,12 @@ exports.deleteBook = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
         if (error.statusCode === 400) {
             next(new apiError_1.BadRequestError(error.message, error));
         }
-        else if (error.statusCode === 500) {
-            next(new apiError_1.InternalServerError(error.message, error));
-        }
         else {
             next(new apiError_1.NotFoundError(error.message, error));
         }
     }
 });
-//PATCH /:ISBN/borrowBook
+//PUT /:ISBN/borrowBook
 exports.borrowBook = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const borrowedBook = yield book_1.default.borrowBook(req.params.ISBN, req.body);
@@ -125,7 +122,7 @@ exports.borrowBook = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
         }
     }
 });
-//PATCH /:ISBN/returnBook
+//PUT /:ISBN/returnBook
 exports.returnBook = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const returnedBook = yield book_1.default.returnBook(req.params.ISBN, req.body);
