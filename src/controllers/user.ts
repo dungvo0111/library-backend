@@ -19,7 +19,7 @@ export const signUp = async (
   try {
     const user = await UserService.signUp(req.body)
     res.json({
-      message: 'Sign up successful',
+      message: 'Sign up successful!',
       user,
     })
   } catch (error) {
@@ -40,7 +40,7 @@ export const signIn = async (
   try {
     const token = await UserService.signIn(req.body)
     res.json({
-      message: 'Sign in successful',
+      message: 'Sign in successful!',
       token: token,
     })
   } catch (error) {
@@ -61,7 +61,7 @@ export const googleSignIn = async (
   try {
     const token = await UserService.googleSignIn(req.body.payload)
     res.json({
-      message: 'Sign in successful',
+      message: 'Sign in successful!',
       token: token,
     })
   } catch (error) {
@@ -79,7 +79,7 @@ export const updateProfile = async (
     const payload = req.body
     const token = await UserService.updateProfile(payload)
     res.json({
-      message: 'Profile updated successfully',
+      message: 'Profile updated successfully!',
       token: token,
     })
   } catch (error) {
@@ -97,7 +97,7 @@ export const changePassword = async (
     const payload = req.body
     const token = await UserService.changePassword(payload)
     res.json({
-      message: 'Password updated successfully',
+      message: 'Password updated successfully!',
       token: token,
     })
   } catch (error) {
@@ -115,7 +115,7 @@ export const resetPasswordRequest = async (
     const payload = req.body
     const resetToken = await UserService.resetPasswordRequest(payload)
     res.json({
-      message: 'Email sent successful',
+      message: 'Email sent successful, check your email!',
       resetToken,
     })
   } catch (error) {
@@ -137,7 +137,7 @@ export const resetPassword = async (
     const payload = req.body
     const user = await UserService.resetPassword(payload)
     res.json({
-      message: 'Reset password successful',
+      message: 'Password reset successfully!',
       user,
     })
   } catch (error) {

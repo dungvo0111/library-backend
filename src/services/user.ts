@@ -8,7 +8,7 @@ import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { MailService } from '@sendgrid/mail'
 import { JWT_SECRET, SENDGRID_API_KEY } from '../util/secrets'
-
+import { emailContent } from '../helpers/emailContent'
 type signInPayload = {
   email: string;
   password: string;
@@ -303,7 +303,7 @@ function resetPasswordRequest(
         to: payload.email,
         from: 'dung.vo@integrify.io',
         subject: 'Link to reset password',
-        html: `Link to reset your password: <strong><a href=${link}>link</a></strong>`,
+        html: emailContent(user.firstName, link),
       }
       return sgMail
         .send(msg)

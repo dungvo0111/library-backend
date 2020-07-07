@@ -18,6 +18,7 @@ const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const mail_1 = require("@sendgrid/mail");
 const secrets_1 = require("../util/secrets");
+const emailContent_1 = require("../helpers/emailContent");
 const isEmail = (email) => {
     const regEx = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     if (email.match(regEx))
@@ -245,7 +246,8 @@ function resetPasswordRequest(payload) {
             to: payload.email,
             from: 'dung.vo@integrify.io',
             subject: 'Link to reset password',
-            html: `Link to reset your password: <strong><a href=${link}>link</a></strong>`,
+            // html: `Link to reset your password: <strong><a href=${link}>link</a></strong>`,
+            html: emailContent_1.emailContent(user.firstName, link)
         };
         return sgMail
             .send(msg)
