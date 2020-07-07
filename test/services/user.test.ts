@@ -272,15 +272,14 @@ describe('user service', () => {
     })
 
     it('should not request password retrieval email to an invalid email', async () => {
-        expect.assertions(1)
-        const user = await signUp()
+        function badRequest() {
+            UserService.resetPasswordRequest({
+                email: "invalidEmail@",
+                url: 'frontendURL'
+            })
+        }
 
-        return await UserService.resetPasswordRequest({
-            email: "invalidEmail@",
-            url: 'frontendURL'
-        }).catch(e => {
-            expect(e.message).toEqual('Must be a valid email address')
-        })
+        expect(badRequest).toThrowError('Must be a valid email address')
     })
 
     it('should not request password retrieval email to an unregistered email', async () => {
@@ -320,19 +319,18 @@ describe('user service', () => {
     })
 
     it('should not reset password to an invalid-formatted password', async () => {
-        expect.assertions(1)
         const user = await signUp()
 
-        return await UserService.resetPassword({
-            newPassword: 'invalidpassword',
-            resetToken: {
-                email: user.email,
-                userId: user._id.toString()
-            }
-        }).catch(e => {
-            expect(e.message).toEqual('Password must be from eight characters, at least one letter and one number')
-        })
+        function badRequest() {
+            UserService.resetPassword({
+                newPassword: 'invalidpassword',
+                resetToken: {
+                    email: user.email,
+                    userId: user._id.toString()
+                }
+            })
+        }
+
+        expect(badRequest).toThrowError('Password must be from eight characters, at least one letter and one number')
     })
-
-
 })

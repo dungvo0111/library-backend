@@ -228,7 +228,7 @@ function changePassword(payload: changePasswordPayload): Promise<string> {
     .exec()
     .then((user) => {
       if (!user) {
-        throw new Error('Email does not match')
+        throw new InternalServerError()
       }
       return bcrypt.compare(payload.oldPassword, user.password).then((res) => {
         if (res) {

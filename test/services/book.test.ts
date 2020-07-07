@@ -435,7 +435,5 @@ describe('book service', () => {
         }
 
         expect(badRequest).toThrowError('Invalid ISBN')
-
-
     })
 })

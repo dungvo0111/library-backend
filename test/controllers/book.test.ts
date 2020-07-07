@@ -273,16 +273,19 @@ describe('user controller', () => {
 
         })
         //make a borrow book request to test return functionality
-        const res2 = await (await request(app).put(`/api/v1/books/${res1.body.ISBN}/borrowBook`).send({ returnedDate: new Date("2020 06 30") }).set('Authorization', `Bearer ${token}`))
+        const res2 = await request(app).put(`/api/v1/books/${res1.body.ISBN}/borrowBook`).send({ returnedDate: new Date("2020 06 30") }).set('Authorization', `Bearer ${token}`)
 
         const res3 = await request(app).put(`/api/v1/books/${res1.body.ISBN}/returnBook`).send({ returnedDate: new Date("2020 06 27") }).set('Authorization', `Bearer ${token}`)
 
         //make the borrow request again
         const res4 = await (await request(app).put(`/api/v1/books/${res1.body.ISBN}/borrowBook`).send({ returnedDate: new Date("2020 06 30") }).set('Authorization', `Bearer ${token}`))
+        
         const res5 = await request(app).put(`/api/v1/books/${nonExistingBookISBN}/returnBook`).send({ returnedDate: new Date("2020 06 27") }).set('Authorization', `Bearer ${token}`)
         const res6 = await request(app).put(`/api/v1/books/${invalidFormatISBN}/returnBook`).send({ returnedDate: new Date("2020 06 27") }).set('Authorization', `Bearer ${token}`)
 
+        //expect the book's status to change back to available after returning
         expect(res3.body.status).toEqual('available')
+        //returned book has no borrowerId
         expect(res3.body.borrowerId).toEqual(undefined)
         expect(res5.status).toBe(404)
         expect(res6.status).toBe(400)

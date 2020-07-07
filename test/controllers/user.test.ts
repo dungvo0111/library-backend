@@ -102,12 +102,12 @@ describe('user controller', () => {
         expect(res3.body.message).toEqual('Must be a valid email address')
     })
 
-    // it('should allow a valid Google sign in', async () => {  
-    //     const res = await request(app).post('/api/v1/user/googleSignIn').set('Authorization', `Bearer ${process.env.GOOGLE_MOCK_ACCESS_TOKEN}`)
-    //     expect(res.status).toBe(200)
-    //     expect(res.body).toHaveProperty('token')
-    //     expect(res.body.message).toEqual('Sign in successful')
-    // })
+    it('should allow a valid Google sign in', async () => {
+        const res = await request(app).post('/api/v1/user/googleSignIn').set('Authorization', `Bearer ${process.env.GOOGLE_MOCK_ID_TOKEN}`)
+        expect(res.status).toBe(200)
+        expect(res.body).toHaveProperty('token')
+        expect(res.body.message).toEqual('Sign in successful')
+    })
 
     it('should update profile of an existing user', async () => {
         const res1 = await signUp()
@@ -160,13 +160,13 @@ describe('user controller', () => {
         expect(res3.status).toBe(400)
     })
 
-    // it('should send a forget-password retrieval email', async () => {
-    //     const res1 = await signUp()
-    //     const res2 = await request(app).post('/api/v1/user/resetPassword').send(forgetPasswordPayload)
+    it('should send a forget-password retrieval email', async () => {
+        const res1 = await signUp()
+        const res2 = await request(app).post('/api/v1/user/resetPassword').send(forgetPasswordPayload)
 
-    //     expect(res2.status).toBe(200)
-    //     expect(res2.body.message).toEqual('Email sent successful')
-    // })
+        expect(res2.status).toBe(200)
+        expect(res2.body.message).toEqual('Email sent successful')
+    })
 
     it('should not send a forget-password retrieval email to an unregistered email', async () => {
         const res1 = await signUp()
@@ -176,29 +176,29 @@ describe('user controller', () => {
         expect(res2.status).toBe(400)
     })
 
-    // it('should reset password', async () => {
-    //     const res1 = await signUp()
-    //     const res2 = await request(app).post('/api/v1/user/resetPassword').send(forgetPasswordPayload)
+    it('should reset password', async () => {
+        const res1 = await signUp()
+        const res2 = await request(app).post('/api/v1/user/resetPassword').send(forgetPasswordPayload)
 
-    //     const resetPasswordPayload = {
-    //         newPassword: 'password123'
-    //     }
+        const resetPasswordPayload = {
+            newPassword: 'password123'
+        }
 
-    //     const res3 = await request(app).put(`/api/v1/user/resetPassword/${res2.body.resetToken}`).send(resetPasswordPayload)
+        const res3 = await request(app).put(`/api/v1/user/resetPassword/${res2.body.resetToken}`).send(resetPasswordPayload)
 
-    //     expect(res3.status).toBe(200)
-    //     expect(res3.body.message).toEqual('Reset password successful')
-    // })
+        expect(res3.status).toBe(200)
+        expect(res3.body.message).toEqual('Reset password successful')
+    })
 
-    // it('should not reset password', async () => {
-    //     const res1 = await signUp()
-    //     const res2 = await request(app).post('/api/v1/user/resetPassword').send(forgetPasswordPayload)
+    it('should not reset password', async () => {
+        const res1 = await signUp()
+        const res2 = await request(app).post('/api/v1/user/resetPassword').send(forgetPasswordPayload)
 
-    //     const invalidResetPasswordPayload = {
-    //         newPassword: 'password'
-    //     }
-    //     const res3 = await request(app).put(`/api/v1/user/resetPassword/${res2.body.resetToken}`).send(invalidResetPasswordPayload)
+        const invalidResetPasswordPayload = {
+            newPassword: 'password'
+        }
+        const res3 = await request(app).put(`/api/v1/user/resetPassword/${res2.body.resetToken}`).send(invalidResetPasswordPayload)
 
-    //     expect(res3.status).toBe(400)
-    // })
+        expect(res3.status).toBe(400)
+    })
 })
