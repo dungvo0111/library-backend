@@ -21,7 +21,10 @@ function findAll({ page, limit, }) {
         const endIndex = page * limit;
         const results = { results: [], pages: 0 };
         const resultCount = yield Book_1.default.countDocuments().exec();
-        results.pages = resultCount % limit === 0 ? (resultCount / limit) : (Math.round(resultCount / limit) + 1);
+        results.pages =
+            resultCount % limit === 0
+                ? resultCount / limit
+                : Math.floor(resultCount / limit + 1);
         if (endIndex < resultCount) {
             results.next = {
                 page: page + 1,
@@ -66,7 +69,10 @@ function filtering(filter) {
             myFilter.genres = { $in: filter.genres };
         }
         const resultCount = yield Book_1.default.find(myFilter).countDocuments().exec();
-        results.pages = resultCount % limit === 0 ? (resultCount / limit) : (Math.round(resultCount / limit) + 1);
+        results.pages =
+            resultCount % limit === 0
+                ? resultCount / limit
+                : Math.floor(resultCount / limit + 1);
         if (endIndex < resultCount) {
             results.next = {
                 page: page + 1,

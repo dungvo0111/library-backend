@@ -65,7 +65,7 @@ async function findAll({
   results.pages =
     resultCount % limit === 0
       ? resultCount / limit
-      : Math.round(resultCount / limit) + 1
+      : Math.floor(resultCount / limit + 1)
   if (endIndex < resultCount) {
     results.next = {
       page: page + 1,
@@ -118,7 +118,8 @@ async function filtering(filter: FilterPayload): Promise<PaginationResults> {
   results.pages =
     resultCount % limit === 0
       ? resultCount / limit
-      : Math.round(resultCount / limit) + 1
+      : Math.floor(resultCount / limit + 1)
+
   if (endIndex < resultCount) {
     results.next = {
       page: page + 1,
