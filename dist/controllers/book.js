@@ -15,16 +15,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const Book_1 = __importDefault(require("../models/Book"));
 const book_1 = __importDefault(require("../services/book"));
 const apiError_1 = require("../helpers/apiError");
-// GET /books with pagination
+//GET /books with pagination
 exports.findAll = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    // try {
-    //   res.json(await BookService.findAll(req.body.paginatedResults))
-    // } catch (error) {
-    //   next(new NotFoundError('Books not found', error))
-    // }
-    const page = parseInt(req.query.page);
-    const limit = parseInt(req.query.limit);
     try {
+        const page = parseInt(req.query.page);
+        const limit = parseInt(req.query.limit);
         res.json(yield book_1.default.findAll({ page, limit }));
     }
     catch (error) {
@@ -60,12 +55,11 @@ exports.createBook = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
 //GET /books/Filtering
 exports.filtering = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const filter = req.query;
-        const result = yield book_1.default.filtering(filter);
+        const result = yield book_1.default.filtering(req.query);
         res.json(result);
     }
     catch (error) {
-        next(new apiError_1.NotFoundError('Books not found', error));
+        throw new apiError_1.InternalServerError();
     }
 });
 // GET /books/:ISBN

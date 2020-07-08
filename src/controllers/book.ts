@@ -8,20 +8,15 @@ import {
   InternalServerError,
 } from '../helpers/apiError'
 
-// GET /books with pagination
+//GET /books with pagination
 export const findAll = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  // try {
-  //   res.json(await BookService.findAll(req.body.paginatedResults))
-  // } catch (error) {
-  //   next(new NotFoundError('Books not found', error))
-  // }
-  const page = parseInt(req.query.page)
-  const limit = parseInt(req.query.limit)
   try {
+    const page = parseInt(req.query.page)
+    const limit = parseInt(req.query.limit)
     res.json(await BookService.findAll({ page, limit }))
   } catch (error) {
     throw new InternalServerError()
@@ -74,11 +69,10 @@ export const filtering = async (
   next: NextFunction
 ) => {
   try {
-    const filter = req.query
-    const result = await BookService.filtering(filter)
+    const result = await BookService.filtering(req.query)
     res.json(result)
   } catch (error) {
-    next(new NotFoundError('Books not found', error))
+    throw new InternalServerError()
   }
 }
 

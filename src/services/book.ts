@@ -6,6 +6,15 @@ type FilterPayload = {
   status?: string;
   author?: {};
   genres?: {};
+  page: string;
+  limit: string;
+}
+
+type Filter = {
+  title?: string;
+  status?: string;
+  author?: {};
+  genres?: {};
 }
 
 type BorrowBookPayload = {
@@ -71,15 +80,35 @@ async function findAll({
     .sort({ title: 1, publishedDate: -1 })
     .exec()
   return results
-  // return Book.find().sort({ title: 1, publishedDate: -1 }).exec()
 }
 
 function create(book: BookDocument): Promise<BookDocument> {
   return book.save()
 }
 
-function filtering(filter: FilterPayload): Promise<BookDocument[]> {
-  const myFilter: FilterPayload = {}
+async function filtering(filter: FilterPayload): Promise<PaginationResults> {
+  const page = parseInt(filter.page)
+  const limit = parseInt(filter.limit)
+
+  const startIndex = (page - 1) * limit
+  const endIndex = page * limit
+
+  const results: PaginationResults = { results: [] }
+
+  if (endIndex < (await Book.countDocuments().exec())) {
+    results.next = {
+      page: page + 1,
+      limit: limit,
+    }
+  }
+
+  if (startIndex > 0) {
+    results.previous = {
+      page: page - 1,
+      limit: limit,
+    }
+  }
+  const myFilter: Filter = {}
 
   if (filter.title) {
     myFilter.title = filter.title
@@ -95,18 +124,16 @@ function filtering(filter: FilterPayload): Promise<BookDocument[]> {
     myFilter.genres = { $in: filter.genres }
   }
 
-  return Book.find(myFilter)
+  results.results = await Book.find(myFilter)
+    .limit(limit)
+    .skip(startIndex)
     .sort({ title: 1, publishedDate: -1 })
-    .then((book) => {
-      if (book.length === 0) {
-        throw new Error('Books not found')
-      }
+    .exec()
 
-      return book
-    })
+  return results
 }
 
-function findByISBN(ISBN: string): Promise<BookDocument> {
+async function findByISBN(ISBN: string): Promise<BookDocument> {
   if (ISBN.match(ISBNRegex)) {
     return Book.findOne({ ISBN })
       .exec()
@@ -121,7 +148,7 @@ function findByISBN(ISBN: string): Promise<BookDocument> {
   }
 }
 
-function updateBook(
+async function updateBook(
   ISBN: string,
   update: Partial<BookDocument>
 ): Promise<BookDocument> {
@@ -167,7 +194,7 @@ function updateBook(
   }
 }
 
-function deleteBook(ISBN: string): Promise<BookDocument | null> {
+async function deleteBook(ISBN: string): Promise<BookDocument | null> {
   if (ISBN.match(ISBNRegex)) {
     return Book.findOneAndDelete({ ISBN })
       .exec()
@@ -182,7 +209,7 @@ function deleteBook(ISBN: string): Promise<BookDocument | null> {
   }
 }
 
-function borrowBook(
+async function borrowBook(
   ISBN: string,
   borrowInfo: BorrowBookPayload
 ): Promise<BookDocument> {
@@ -209,7 +236,7 @@ function borrowBook(
   }
 }
 
-function returnBook(
+async function returnBook(
   ISBN: string,
   returnInfo: ReturnBookPayload
 ): Promise<BookDocument> {
