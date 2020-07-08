@@ -19,8 +19,10 @@ function findAll({ page, limit, }) {
     return __awaiter(this, void 0, void 0, function* () {
         const startIndex = (page - 1) * limit;
         const endIndex = page * limit;
-        const results = { results: [] };
-        if (endIndex < (yield Book_1.default.countDocuments().exec())) {
+        const results = { results: [], pages: 0 };
+        const resultCount = yield Book_1.default.countDocuments().exec();
+        results.pages = resultCount % limit === 0 ? (resultCount / limit) : (Math.round(resultCount / limit) + 1);
+        if (endIndex < resultCount) {
             results.next = {
                 page: page + 1,
                 limit: limit,
@@ -49,19 +51,7 @@ function filtering(filter) {
         const limit = parseInt(filter.limit);
         const startIndex = (page - 1) * limit;
         const endIndex = page * limit;
-        const results = { results: [] };
-        if (endIndex < (yield Book_1.default.countDocuments().exec())) {
-            results.next = {
-                page: page + 1,
-                limit: limit,
-            };
-        }
-        if (startIndex > 0) {
-            results.previous = {
-                page: page - 1,
-                limit: limit,
-            };
-        }
+        const results = { results: [], pages: 0 };
         const myFilter = {};
         if (filter.title) {
             myFilter.title = filter.title;
@@ -74,6 +64,20 @@ function filtering(filter) {
         }
         if (filter.genres) {
             myFilter.genres = { $in: filter.genres };
+        }
+        const resultCount = yield Book_1.default.find(myFilter).countDocuments().exec();
+        results.pages = resultCount % limit === 0 ? (resultCount / limit) : (Math.round(resultCount / limit) + 1);
+        if (endIndex < resultCount) {
+            results.next = {
+                page: page + 1,
+                limit: limit,
+            };
+        }
+        if (startIndex > 0) {
+            results.previous = {
+                page: page - 1,
+                limit: limit,
+            };
         }
         results.results = yield Book_1.default.find(myFilter)
             .limit(limit)

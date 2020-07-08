@@ -48,6 +48,7 @@ type PaginationResults = {
     page: number;
     limit: number;
   };
+  pages: number;
 }
 
 const ISBNRegex = /^(97(8|9))?\d{9}(\d|X)$/
@@ -59,9 +60,13 @@ async function findAll({
   const startIndex = (page - 1) * limit
   const endIndex = page * limit
 
-  const results: PaginationResults = { results: [] }
-
-  if (endIndex < (await Book.countDocuments().exec())) {
+  const results: PaginationResults = { results: [], pages: 0 }
+  const resultCount = await Book.countDocuments().exec()
+  results.pages =
+    resultCount % limit === 0
+      ? resultCount / limit
+      : Math.round(resultCount / limit) + 1
+  if (endIndex < resultCount) {
     results.next = {
       page: page + 1,
       limit: limit,
@@ -93,21 +98,7 @@ async function filtering(filter: FilterPayload): Promise<PaginationResults> {
   const startIndex = (page - 1) * limit
   const endIndex = page * limit
 
-  const results: PaginationResults = { results: [] }
-
-  if (endIndex < (await Book.countDocuments().exec())) {
-    results.next = {
-      page: page + 1,
-      limit: limit,
-    }
-  }
-
-  if (startIndex > 0) {
-    results.previous = {
-      page: page - 1,
-      limit: limit,
-    }
-  }
+  const results: PaginationResults = { results: [], pages: 0 }
   const myFilter: Filter = {}
 
   if (filter.title) {
@@ -122,6 +113,24 @@ async function filtering(filter: FilterPayload): Promise<PaginationResults> {
   }
   if (filter.genres) {
     myFilter.genres = { $in: filter.genres }
+  }
+  const resultCount = await Book.find(myFilter).countDocuments().exec()
+  results.pages =
+    resultCount % limit === 0
+      ? resultCount / limit
+      : Math.round(resultCount / limit) + 1
+  if (endIndex < resultCount) {
+    results.next = {
+      page: page + 1,
+      limit: limit,
+    }
+  }
+
+  if (startIndex > 0) {
+    results.previous = {
+      page: page - 1,
+      limit: limit,
+    }
   }
 
   results.results = await Book.find(myFilter)
