@@ -12,7 +12,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const Book_1 = __importDefault(require("../models/Book"));
 const book_1 = __importDefault(require("../services/book"));
 const apiError_1 = require("../helpers/apiError");
 //GET /books with pagination
@@ -29,26 +28,18 @@ exports.findAll = (req, res, next) => __awaiter(void 0, void 0, void 0, function
 //POST /books
 exports.createBook = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { ISBN, title, description, publisher, author, genres, status, publishedDate, } = req.body;
-        const book = new Book_1.default({
-            ISBN,
-            title,
-            description,
-            publisher,
-            author,
-            genres,
-            status,
-            publishedDate,
+        const book = yield book_1.default.create(req.body);
+        res.json({
+            message: 'New book added successfully!',
+            book,
         });
-        yield book_1.default.create(book);
-        res.json(book);
     }
     catch (error) {
-        if (error.name === 'ValidationError' || error.name === 'MongoError') {
-            next(new apiError_1.BadRequestError('Invalid Request', error));
+        if (error.statusCode === 500) {
+            next(new apiError_1.InternalServerError('Internal Server Error', error));
         }
         else {
-            next(new apiError_1.InternalServerError('Internal Server Error', error));
+            next(new apiError_1.BadRequestError(error.message, error));
         }
     }
 });

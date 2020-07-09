@@ -87,7 +87,51 @@ async function findAll({
   return results
 }
 
-function create(book: BookDocument): Promise<BookDocument> {
+async function create(payload: BookDocument): Promise<BookDocument> {
+  const {
+    ISBN,
+    title,
+    description,
+    publisher,
+    author,
+    genres,
+    status,
+    publishedDate,
+  } = payload
+  const checkISBN = await Book.findOne({ ISBN: ISBN })
+    .exec()
+    .then((book) => {
+      if (book) {
+        return true
+      } else {
+        return false
+      }
+    })
+  if (checkISBN) {
+    throw new BadRequestError('Book with the same ISBN has already added')
+  }
+  const checkTitle = await Book.findOne({ title: title })
+    .exec()
+    .then((book) => {
+      if (book) {
+        return true
+      } else {
+        return false
+      }
+    })
+  if (checkTitle) {
+    throw new BadRequestError('Book with the same title has already added')
+  }
+  const book = new Book({
+    ISBN,
+    title,
+    description,
+    publisher,
+    author,
+    genres,
+    status,
+    publishedDate,
+  })
   return book.save()
 }
 

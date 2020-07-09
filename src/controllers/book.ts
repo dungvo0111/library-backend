@@ -30,34 +30,16 @@ export const createBook = async (
   next: NextFunction
 ) => {
   try {
-    const {
-      ISBN,
-      title,
-      description,
-      publisher,
-      author,
-      genres,
-      status,
-      publishedDate,
-    } = req.body
-
-    const book = new Book({
-      ISBN,
-      title,
-      description,
-      publisher,
-      author,
-      genres,
-      status,
-      publishedDate,
+    const book = await BookService.create(req.body)
+    res.json({
+      message: 'New book added successfully!',
+      book,
     })
-    await BookService.create(book)
-    res.json(book)
   } catch (error) {
-    if (error.name === 'ValidationError' || error.name === 'MongoError') {
-      next(new BadRequestError('Invalid Request', error))
-    } else {
+    if (error.statusCode === 500) {
       next(new InternalServerError('Internal Server Error', error))
+    } else {
+      next(new BadRequestError(error.message, error))
     }
   }
 }

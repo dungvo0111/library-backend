@@ -45,8 +45,47 @@ function findAll({ page, limit, }) {
         return results;
     });
 }
-function create(book) {
-    return book.save();
+function create(payload) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const { ISBN, title, description, publisher, author, genres, status, publishedDate, } = payload;
+        const checkISBN = yield Book_1.default.findOne({ ISBN: ISBN })
+            .exec()
+            .then((book) => {
+            if (book) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        });
+        if (checkISBN) {
+            throw new apiError_1.BadRequestError('Book with the same ISBN has already added');
+        }
+        const checkTitle = yield Book_1.default.findOne({ title: title })
+            .exec()
+            .then((book) => {
+            if (book) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        });
+        if (checkTitle) {
+            throw new apiError_1.BadRequestError('Book with the same title has already added');
+        }
+        const book = new Book_1.default({
+            ISBN,
+            title,
+            description,
+            publisher,
+            author,
+            genres,
+            status,
+            publishedDate,
+        });
+        return book.save();
+    });
 }
 function filtering(filter) {
     return __awaiter(this, void 0, void 0, function* () {
