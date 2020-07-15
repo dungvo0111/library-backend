@@ -281,13 +281,13 @@ function resetPassword(payload) {
 function getUserInfo(userId) {
     return User_1.default.findById(userId)
         .exec()
-        .then(user => {
+        .then((user) => {
         if (!user) {
             throw new Error(`User with ID ${userId} not found`);
         }
         const userInfo = {
             borrowingBooks: user.borrowingBooks,
-            returnedBooks: user.returnedBooks
+            returnedBooks: user.returnedBooks,
         };
         return userInfo;
     });
@@ -300,6 +300,6 @@ exports.default = {
     changePassword,
     resetPasswordRequest,
     resetPassword,
-    getUserInfo
+    getUserInfo,
 };
 //# sourceMappingURL=user.js.map

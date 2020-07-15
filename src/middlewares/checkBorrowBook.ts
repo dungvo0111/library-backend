@@ -19,5 +19,6 @@ export default function checkBorrowBook(
       if (isBorrowed) {
         next(new BadRequestError('You are currently borrowing this book'))
       }
+      next()
     })
 }

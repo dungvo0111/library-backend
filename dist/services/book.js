@@ -238,11 +238,11 @@ function borrowBook(ISBN, borrowInfo) {
                     });
                     // book.status = 'borrowed'
                     book.borrowerId.push(borrowInfo.authData.userId);
-                    book.borrowedDate = new Date();
-                    if (new Date(book.borrowedDate) > new Date(borrowInfo.returnedDate)) {
-                        throw new apiError_1.BadRequestError('Return date must be after today');
-                    }
-                    book.returnedDate = borrowInfo.returnedDate;
+                    // book.borrowedDate = new Date()
+                    // if (new Date(book.borrowedDate) > new Date(borrowInfo.returnedDate)) {
+                    //   throw new BadRequestError('Return date must be after today')
+                    // }
+                    // book.returnedDate = borrowInfo.returnedDate
                     return book.save();
                 }
             });
@@ -283,8 +283,8 @@ function returnBook(ISBN, returnInfo) {
                     });
                     // book.status = 'available'
                     book.borrowerId.splice(book.borrowerId.indexOf(returnInfo.authData.userId), 1);
-                    book.borrowedDate = undefined;
-                    book.returnedDate = undefined;
+                    // book.borrowedDate = undefined
+                    // book.returnedDate = undefined
                     return book.save();
                 }
             });

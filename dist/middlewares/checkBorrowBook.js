@@ -16,6 +16,7 @@ function checkBorrowBook(req, res, next) {
         if (isBorrowed) {
             next(new apiError_1.BadRequestError('You are currently borrowing this book'));
         }
+        next();
     });
 }
 exports.default = checkBorrowBook;
