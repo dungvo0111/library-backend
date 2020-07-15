@@ -129,4 +129,13 @@ exports.resetPassword = (req, res, next) => __awaiter(void 0, void 0, void 0, fu
         }
     }
 });
+//GET /user/:userId
+exports.getUserInfo = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        res.json(yield user_1.default.getUserInfo(req.params.userId));
+    }
+    catch (error) {
+        next(new apiError_1.InternalServerError(error));
+    }
+});
 //# sourceMappingURL=user.js.map

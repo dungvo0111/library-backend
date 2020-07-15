@@ -6,15 +6,16 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const User_1 = __importDefault(require("../models/User"));
 const apiError_1 = require("../helpers/apiError");
 function checkBorrowBook(req, res, next) {
-    User_1.default.findById(req.body.authData.userId).exec().then((user) => {
+    User_1.default.findById(req.body.authData.userId)
+        .exec()
+        .then((user) => {
         if (!user) {
             throw new apiError_1.BadRequestError('No user found');
         }
-        const a = user.borrowingBooks.some(item => item.ISBN === req.params.ISBN);
-        if (a) {
-            req.body.isBorrowed = true;
+        const isBorrowed = user.borrowingBooks.some((item) => item.ISBN === req.params.ISBN);
+        if (isBorrowed) {
+            next(new apiError_1.BadRequestError('You are currently borrowing this book'));
         }
-        next();
     });
 }
 exports.default = checkBorrowBook;

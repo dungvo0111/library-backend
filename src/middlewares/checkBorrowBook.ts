@@ -13,12 +13,11 @@ export default function checkBorrowBook(
       if (!user) {
         throw new BadRequestError('No user found')
       }
-      const a = user.borrowingBooks.some(
+      const isBorrowed = user.borrowingBooks.some(
         (item) => item.ISBN === req.params.ISBN
       )
-      if (a) {
-        req.body.isBorrowed = true
+      if (isBorrowed) {
+        next(new BadRequestError('You are currently borrowing this book'))
       }
-      next()
     })
 }

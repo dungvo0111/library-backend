@@ -339,6 +339,21 @@ function resetPassword(payload: resetPasswordPayload): Promise<UserDocument> {
     })
 }
 
+function getUserInfo(userId: string): Promise<Partial<UserDocument>> {
+  return User.findById(userId)
+    .exec()
+    .then((user) => {
+      if (!user) {
+        throw new Error(`User with ID ${userId} not found`)
+      }
+      const userInfo = {
+        borrowingBooks: user.borrowingBooks,
+        returnedBooks: user.returnedBooks,
+      }
+      return userInfo
+    })
+}
+
 export default {
   signUp,
   signIn,
@@ -347,4 +362,5 @@ export default {
   changePassword,
   resetPasswordRequest,
   resetPassword,
+  getUserInfo,
 }

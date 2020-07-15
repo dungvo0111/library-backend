@@ -219,21 +219,20 @@ function borrowBook(ISBN, borrowInfo) {
                 if (!book) {
                     throw new Error(`Book with ISBN ${ISBN} not found`);
                 }
-                if (borrowInfo.isBorrowed) {
-                    throw new apiError_1.BadRequestError(`You are currently borrowing this book`);
-                }
                 if (book.status === 'borrowed') {
                     throw new apiError_1.BadRequestError(`Book with ISBN ${ISBN} has been borrowed`);
                 }
                 else {
-                    User_1.default.findById(borrowInfo.authData.userId).exec().then((user) => {
+                    User_1.default.findById(borrowInfo.authData.userId)
+                        .exec()
+                        .then((user) => {
                         if (!user) {
                             throw new apiError_1.BadRequestError('No user found');
                         }
                         user.borrowingBooks.push({
                             ISBN: ISBN,
                             title: book.title,
-                            borrowedDate: new Date()
+                            borrowedDate: new Date(),
                         });
                         user.save();
                     });
@@ -260,23 +259,25 @@ function returnBook(ISBN, returnInfo) {
                 if (!book) {
                     throw new Error(`Book with ISBN ${ISBN} not found`);
                 }
-                if (book.borrowerId.every(id => id !== returnInfo.authData.userId)) {
+                if (book.borrowerId.every((id) => id !== returnInfo.authData.userId)) {
                     throw new Error(`User with ID ${returnInfo.authData.userId} is not the borrower of this book`);
                 }
                 else {
-                    User_1.default.findById(returnInfo.authData.userId).exec().then((user) => {
+                    User_1.default.findById(returnInfo.authData.userId)
+                        .exec()
+                        .then((user) => {
                         if (!user) {
                             throw new apiError_1.BadRequestError('No user found');
                         }
-                        const returnedBook = user.borrowingBooks.find(item => item.ISBN === ISBN);
+                        const returnedBook = user.borrowingBooks.find((item) => item.ISBN === ISBN);
                         if (!returnedBook) {
-                            throw new apiError_1.InternalServerError("Book not available in database");
+                            throw new apiError_1.InternalServerError('Book not available in database');
                         }
                         user.borrowingBooks.splice(user.borrowingBooks.indexOf(returnedBook), 1);
                         user.returnedBooks.push({
                             ISBN: ISBN,
                             title: book.title,
-                            returnedDate: returnInfo.returnedDate
+                            returnedDate: returnInfo.returnedDate,
                         });
                         user.save();
                     });

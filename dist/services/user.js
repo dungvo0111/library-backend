@@ -56,7 +56,7 @@ function signUp(payload) {
                     email: payload.email,
                     password: hash,
                     borrowingBooks: [],
-                    returnedBooks: []
+                    returnedBooks: [],
                 });
                 return user.save();
             })
@@ -110,7 +110,7 @@ function googleSignIn(payload) {
                 lastName: payload.lastName,
                 password: bcryptjs_1.default.hashSync('abcd1234', 10),
                 borrowingBooks: [],
-                returnedBooks: []
+                returnedBooks: [],
             });
             return newUser.save().then((newUser) => {
                 const token = jsonwebtoken_1.default.sign({
@@ -278,6 +278,20 @@ function resetPassword(payload) {
         });
     });
 }
+function getUserInfo(userId) {
+    return User_1.default.findById(userId)
+        .exec()
+        .then(user => {
+        if (!user) {
+            throw new Error(`User with ID ${userId} not found`);
+        }
+        const userInfo = {
+            borrowingBooks: user.borrowingBooks,
+            returnedBooks: user.returnedBooks
+        };
+        return userInfo;
+    });
+}
 exports.default = {
     signUp,
     signIn,
@@ -286,5 +300,6 @@ exports.default = {
     changePassword,
     resetPasswordRequest,
     resetPassword,
+    getUserInfo
 };
 //# sourceMappingURL=user.js.map

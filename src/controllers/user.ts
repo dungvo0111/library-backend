@@ -148,3 +148,16 @@ export const resetPassword = async (
     }
   }
 }
+
+//GET /user/:userId
+export const getUserInfo = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    res.json(await UserService.getUserInfo(req.params.userId))
+  } catch (error) {
+    next(new InternalServerError(error))
+  }
+}

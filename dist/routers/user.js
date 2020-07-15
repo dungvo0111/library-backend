@@ -16,5 +16,6 @@ router.put('/updateProfile', checkAuth_1.default, user_1.updateProfile);
 router.put('/updatePassword', checkAuth_1.default, user_1.changePassword);
 router.post('/resetPassword', user_1.resetPasswordRequest);
 router.put('/resetPassword/:resetToken', checkResetToken_1.default, user_1.resetPassword);
+router.get('/:userId', user_1.getUserInfo);
 exports.default = router;
 //# sourceMappingURL=user.js.map

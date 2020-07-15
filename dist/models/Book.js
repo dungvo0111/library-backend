@@ -38,7 +38,7 @@ const bookSchema = new mongoose_1.default.Schema({
     },
     borrowerId: {
         type: [String],
-        default: []
+        default: [],
     },
     publishedDate: {
         type: Date,

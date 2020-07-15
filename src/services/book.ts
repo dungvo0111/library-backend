@@ -23,7 +23,6 @@ type BorrowBookPayload = {
     email: string;
     userId: string;
   };
-  isBorrowed: boolean;
   returnedDate: Date;
 }
 
@@ -273,9 +272,6 @@ async function borrowBook(
     return findByISBN(ISBN).then((book) => {
       if (!book) {
         throw new Error(`Book with ISBN ${ISBN} not found`)
-      }
-      if (borrowInfo.isBorrowed) {
-        throw new BadRequestError('You are currently borrowing this book')
       }
       if (book.status === 'borrowed') {
         throw new BadRequestError(`Book with ISBN ${ISBN} has been borrowed`)

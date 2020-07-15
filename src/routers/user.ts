@@ -8,6 +8,7 @@ import {
   changePassword,
   resetPasswordRequest,
   resetPassword,
+  getUserInfo,
 } from '../controllers/user'
 
 import checkAuth from '../middlewares/checkAuth'
@@ -23,5 +24,6 @@ router.put('/updateProfile', checkAuth, updateProfile)
 router.put('/updatePassword', checkAuth, changePassword)
 router.post('/resetPassword', resetPasswordRequest)
 router.put('/resetPassword/:resetToken', checkResetToken, resetPassword)
+router.get('/:userId', getUserInfo)
 
 export default router
