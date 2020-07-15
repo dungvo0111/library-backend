@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importDefault(require("mongoose"));
-const bookSchema = new mongoose_1.default.Schema({
+const user_BooksSchema = new mongoose_1.default.Schema({
     ISBN: {
         type: String,
         validate: /^(97(8|9))?\d{9}(\d|X)$/,
@@ -37,8 +37,7 @@ const bookSchema = new mongoose_1.default.Schema({
         default: 'available',
     },
     borrowerId: {
-        type: [String],
-        default: []
+        type: String,
     },
     publishedDate: {
         type: Date,
@@ -52,5 +51,5 @@ const bookSchema = new mongoose_1.default.Schema({
         type: Date,
     },
 });
-exports.default = mongoose_1.default.model('Book', bookSchema);
-//# sourceMappingURL=Book.js.map
+exports.default = mongoose_1.default.model('User_Books', user_BooksSchema);
+//# sourceMappingURL=User_Books.js.map

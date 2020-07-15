@@ -27,6 +27,12 @@ const userSchema = new mongoose_1.default.Schema({
         type: Boolean,
         default: false,
     },
+    borrowingBooks: {
+        type: [Object],
+    },
+    returnedBooks: {
+        type: [Object],
+    },
 });
 exports.default = mongoose_1.default.model('User', userSchema);
 //# sourceMappingURL=User.js.map

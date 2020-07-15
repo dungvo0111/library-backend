@@ -14,6 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const Book_1 = __importDefault(require("../models/Book"));
 const apiError_1 = require("../helpers/apiError");
+const User_1 = __importDefault(require("../models/User"));
 const ISBNRegex = /^(97(8|9))?\d{9}(\d|X)$/;
 function findAll({ page, limit, }) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -24,7 +25,7 @@ function findAll({ page, limit, }) {
         results.pages =
             resultCount % limit === 0
                 ? resultCount / limit
-                : Math.floor(resultCount / limit + 1);
+                : Math.round(resultCount / limit);
         if (endIndex < resultCount) {
             results.next = {
                 page: page + 1,
@@ -59,7 +60,7 @@ function create(payload) {
             }
         });
         if (checkISBN) {
-            throw new apiError_1.BadRequestError('Book with the same ISBN has already added');
+            throw new apiError_1.BadRequestError('Book with the same ISBN has already been added');
         }
         const checkTitle = yield Book_1.default.findOne({ title: title })
             .exec()
@@ -72,7 +73,7 @@ function create(payload) {
             }
         });
         if (checkTitle) {
-            throw new apiError_1.BadRequestError('Book with the same title has already added');
+            throw new apiError_1.BadRequestError('Book with the same title has already been added');
         }
         const book = new Book_1.default({
             ISBN,
@@ -111,7 +112,7 @@ function filtering(filter) {
         results.pages =
             resultCount % limit === 0
                 ? resultCount / limit
-                : Math.floor(resultCount / limit + 1);
+                : Math.round(resultCount / limit);
         if (endIndex < resultCount) {
             results.next = {
                 page: page + 1,
@@ -218,12 +219,26 @@ function borrowBook(ISBN, borrowInfo) {
                 if (!book) {
                     throw new Error(`Book with ISBN ${ISBN} not found`);
                 }
+                if (borrowInfo.isBorrowed) {
+                    throw new apiError_1.BadRequestError(`You are currently borrowing this book`);
+                }
                 if (book.status === 'borrowed') {
                     throw new apiError_1.BadRequestError(`Book with ISBN ${ISBN} has been borrowed`);
                 }
                 else {
-                    book.status = 'borrowed';
-                    book.borrowerId = borrowInfo.authData.userId;
+                    User_1.default.findById(borrowInfo.authData.userId).exec().then((user) => {
+                        if (!user) {
+                            throw new apiError_1.BadRequestError('No user found');
+                        }
+                        user.borrowingBooks.push({
+                            ISBN: ISBN,
+                            title: book.title,
+                            borrowedDate: new Date()
+                        });
+                        user.save();
+                    });
+                    // book.status = 'borrowed'
+                    book.borrowerId.push(borrowInfo.authData.userId);
                     book.borrowedDate = new Date();
                     if (new Date(book.borrowedDate) > new Date(borrowInfo.returnedDate)) {
                         throw new apiError_1.BadRequestError('Return date must be after today');
@@ -245,14 +260,29 @@ function returnBook(ISBN, returnInfo) {
                 if (!book) {
                     throw new Error(`Book with ISBN ${ISBN} not found`);
                 }
-                if (book.borrowerId !== returnInfo.authData.userId) {
+                if (book.borrowerId.every(id => id !== returnInfo.authData.userId)) {
                     throw new Error(`User with ID ${returnInfo.authData.userId} is not the borrower of this book`);
                 }
                 else {
-                    book.status = 'available';
-                    book.borrowerId = undefined;
+                    User_1.default.findById(returnInfo.authData.userId).exec().then((user) => {
+                        if (!user) {
+                            throw new apiError_1.BadRequestError('No user found');
+                        }
+                        const returnedBook = user.borrowingBooks.find(item => item.ISBN === ISBN);
+                        if (!returnedBook) {
+                            throw new apiError_1.InternalServerError("Book not available in database");
+                        }
+                        user.borrowingBooks.splice(user.borrowingBooks.indexOf(returnedBook), 1);
+                        user.returnedBooks.push({
+                            ISBN: ISBN,
+                            title: book.title,
+                            returnedDate: returnInfo.returnedDate
+                        });
+                        user.save();
+                    });
+                    // book.status = 'available'
+                    book.borrowerId.splice(book.borrowerId.indexOf(returnInfo.authData.userId), 1);
                     book.borrowedDate = undefined;
-                    //TO DO: handle penalty for late returned Date
                     book.returnedDate = undefined;
                     return book.save();
                 }

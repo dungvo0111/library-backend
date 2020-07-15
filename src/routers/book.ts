@@ -13,6 +13,7 @@ import {
 
 import checkAuth from '../middlewares/checkAuth'
 import checkPermission from '../middlewares/checkPermission'
+import checkBorrowBook from '../middlewares/checkBorrowBook'
 
 const router = express.Router()
 
@@ -22,7 +23,7 @@ router.get('/:ISBN', findByISBN)
 router.put('/:ISBN', checkAuth, checkPermission, updateBook)
 router.delete('/:ISBN', checkAuth, checkPermission, deleteBook)
 router.post('/', checkAuth, checkPermission, createBook)
-router.put('/:ISBN/borrowBook', checkAuth, borrowBook)
+router.put('/:ISBN/borrowBook', checkAuth, checkBorrowBook, borrowBook)
 router.put('/:ISBN/returnBook', checkAuth, returnBook)
 
 export default router

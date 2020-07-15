@@ -55,6 +55,8 @@ function signUp(payload) {
                     lastName: payload.lastName,
                     email: payload.email,
                     password: hash,
+                    borrowingBooks: [],
+                    returnedBooks: []
                 });
                 return user.save();
             })
@@ -107,6 +109,8 @@ function googleSignIn(payload) {
                 firstName: payload.firstName,
                 lastName: payload.lastName,
                 password: bcryptjs_1.default.hashSync('abcd1234', 10),
+                borrowingBooks: [],
+                returnedBooks: []
             });
             return newUser.save().then((newUser) => {
                 const token = jsonwebtoken_1.default.sign({

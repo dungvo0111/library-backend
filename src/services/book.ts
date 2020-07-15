@@ -1,5 +1,6 @@
 import Book, { BookDocument } from '../models/Book'
 import { BadRequestError, InternalServerError } from '../helpers/apiError'
+import User from '../models/User'
 
 type FilterPayload = {
   title?: string;
@@ -22,6 +23,7 @@ type BorrowBookPayload = {
     email: string;
     userId: string;
   };
+  isBorrowed: boolean;
   returnedDate: Date;
 }
 
@@ -65,7 +67,7 @@ async function findAll({
   results.pages =
     resultCount % limit === 0
       ? resultCount / limit
-      : Math.floor(resultCount / limit + 1)
+      : Math.round(resultCount / limit)
   if (endIndex < resultCount) {
     results.next = {
       page: page + 1,
@@ -108,7 +110,7 @@ async function create(payload: BookDocument): Promise<BookDocument> {
       }
     })
   if (checkISBN) {
-    throw new BadRequestError('Book with the same ISBN has already added')
+    throw new BadRequestError('Book with the same ISBN has already been added')
   }
   const checkTitle = await Book.findOne({ title: title })
     .exec()
@@ -120,7 +122,7 @@ async function create(payload: BookDocument): Promise<BookDocument> {
       }
     })
   if (checkTitle) {
-    throw new BadRequestError('Book with the same title has already added')
+    throw new BadRequestError('Book with the same title has already been added')
   }
   const book = new Book({
     ISBN,
@@ -162,7 +164,7 @@ async function filtering(filter: FilterPayload): Promise<PaginationResults> {
   results.pages =
     resultCount % limit === 0
       ? resultCount / limit
-      : Math.floor(resultCount / limit + 1)
+      : Math.round(resultCount / limit)
 
   if (endIndex < resultCount) {
     results.next = {
@@ -272,11 +274,27 @@ async function borrowBook(
       if (!book) {
         throw new Error(`Book with ISBN ${ISBN} not found`)
       }
+      if (borrowInfo.isBorrowed) {
+        throw new BadRequestError('You are currently borrowing this book')
+      }
       if (book.status === 'borrowed') {
         throw new BadRequestError(`Book with ISBN ${ISBN} has been borrowed`)
       } else {
-        book.status = 'borrowed'
-        book.borrowerId = borrowInfo.authData.userId
+        User.findById(borrowInfo.authData.userId)
+          .exec()
+          .then((user) => {
+            if (!user) {
+              throw new BadRequestError('No user found')
+            }
+            user.borrowingBooks.push({
+              ISBN: ISBN,
+              title: book.title,
+              borrowedDate: new Date(),
+            })
+            user.save()
+          })
+        // book.status = 'borrowed'
+        book.borrowerId.push(borrowInfo.authData.userId)
         book.borrowedDate = new Date()
         if (new Date(book.borrowedDate) > new Date(borrowInfo.returnedDate)) {
           throw new BadRequestError('Return date must be after today')
@@ -299,15 +317,40 @@ async function returnBook(
       if (!book) {
         throw new Error(`Book with ISBN ${ISBN} not found`)
       }
-      if (book.borrowerId !== returnInfo.authData.userId) {
+      if (book.borrowerId.every((id) => id !== returnInfo.authData.userId)) {
         throw new Error(
           `User with ID ${returnInfo.authData.userId} is not the borrower of this book`
         )
       } else {
-        book.status = 'available'
-        book.borrowerId = undefined
+        User.findById(returnInfo.authData.userId)
+          .exec()
+          .then((user) => {
+            if (!user) {
+              throw new BadRequestError('No user found')
+            }
+            const returnedBook = user.borrowingBooks.find(
+              (item) => item.ISBN === ISBN
+            )
+            if (!returnedBook) {
+              throw new InternalServerError('Book not available in database')
+            }
+            user.borrowingBooks.splice(
+              user.borrowingBooks.indexOf(returnedBook),
+              1
+            )
+            user.returnedBooks.push({
+              ISBN: ISBN,
+              title: book.title,
+              returnedDate: returnInfo.returnedDate,
+            })
+            user.save()
+          })
+        // book.status = 'available'
+        book.borrowerId.splice(
+          book.borrowerId.indexOf(returnInfo.authData.userId),
+          1
+        )
         book.borrowedDate = undefined
-        //TO DO: handle penalty for late returned Date
         book.returnedDate = undefined
         return book.save()
       }

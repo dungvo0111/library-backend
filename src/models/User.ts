@@ -1,4 +1,5 @@
 import mongoose, { Document } from 'mongoose'
+import { BookDocument } from './Book'
 
 export type UserDocument = Document & {
   firstName: string;
@@ -6,6 +7,8 @@ export type UserDocument = Document & {
   email: string;
   password: string;
   isAdmin: boolean;
+  borrowingBooks: Partial<BookDocument>[];
+  returnedBooks: Partial<BookDocument>[];
 }
 
 const userSchema = new mongoose.Schema({
@@ -30,6 +33,12 @@ const userSchema = new mongoose.Schema({
   isAdmin: {
     type: Boolean,
     default: false,
+  },
+  borrowingBooks: {
+    type: [Object],
+  },
+  returnedBooks: {
+    type: [Object],
   },
 })
 

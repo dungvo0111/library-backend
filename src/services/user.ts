@@ -80,6 +80,8 @@ function signUp(payload: UserDocument): Promise<UserDocument> {
               lastName: payload.lastName,
               email: payload.email,
               password: hash,
+              borrowingBooks: [],
+              returnedBooks: [],
             })
             return user.save()
           })
@@ -140,6 +142,8 @@ function googleSignIn(payload: googleSignInPayload): Promise<string> {
           firstName: payload.firstName,
           lastName: payload.lastName,
           password: bcrypt.hashSync('abcd1234', 10), //Create a default password
+          borrowingBooks: [],
+          returnedBooks: [],
         })
         return newUser.save().then((newUser) => {
           const token = jwt.sign(

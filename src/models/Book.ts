@@ -10,7 +10,7 @@ export type BookDocument = Document & {
   author: string[];
   status: Status;
   genres: string[];
-  borrowerId?: string;
+  borrowerId: string[];
   publishedDate: Date;
   borrowedDate?: Date;
   returnedDate?: Date;
@@ -49,7 +49,8 @@ const bookSchema = new mongoose.Schema({
     default: 'available',
   },
   borrowerId: {
-    type: String,
+    type: [String],
+    default: [],
   },
   publishedDate: {
     type: Date,
