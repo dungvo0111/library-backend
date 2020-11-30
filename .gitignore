@@ -33,11 +33,10 @@ bower_components
 .DS_Store
 Thumbs.db
 
-# Ignore built ts files
-
-
+# Ignore .env
+.env
+.env.example
 # ignore yarn.lock
 yarn.lock
-
 *.swo
 *.swp
